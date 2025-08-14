@@ -1,0 +1,166 @@
+services:
+  auth:
+    container_name: auth-service
+    build: server/auth-service
+    image: auth-service
+    restart: always
+    env_file:
+      - ./server/.env
+    networks:
+      - trandenden-net
+    volumes:
+      - ./server/auth-service/:/usr/src/app/
+      - /usr/src/app/node_modules
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  profile:
+    container_name: profile-service
+    build: server/profile-service
+    image: profile-service
+    restart: always
+    env_file:
+      - ./server/.env
+    networks:
+      - trandenden-net
+    volumes:
+      - ./server/profile-service/:/usr/src/app/
+      - /usr/src/app/node_modules
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  friends:
+    container_name: friends-service
+    build: server/relationships-service
+    image: friends-service
+    restart: always
+    env_file:
+      - ./server/.env
+    networks:
+      - trandenden-net
+    volumes:
+      - ./server/relationships-service/:/usr/src/app/
+      - /usr/src/app/node_modules
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  notifications:
+    container_name: notifications-service
+    build: server/notifications-service
+    image: notifications-service
+    restart: always
+    env_file:
+      - ./server/.env
+    networks:
+      - trandenden-net
+    volumes:
+      - ./server/notifications-service/:/usr/src/app/
+      - /usr/src/app/node_modules
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  chat:
+    container_name: chat-service
+    build: server/chat-service
+    image: chat-service
+    restart: always
+    env_file:
+      - ./server/.env
+    networks:
+      - trandenden-net
+    volumes:
+      - ./server/chat-service/:/usr/src/app/
+      - /usr/src/app/node_modules
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  dashboard:
+    container_name: dashboard-service
+    build: server/dashboard-service
+    image: dashboard-service
+    restart: always
+    env_file:
+      - ./server/.env
+    networks:
+      - trandenden-net
+    volumes:
+      - ./server/dashboard-service/:/usr/src/app/
+      - /usr/src/app/node_modules
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  redis:
+    container_name: redis
+    build: server/redis
+    restart: always
+    networks:
+      - trandenden-net
+    volumes:
+      - redis-data:/data
+
+  game:
+    container_name: game-service
+    build: server/game-service
+    image: game-service
+    restart: always
+    env_file:
+      - ./server/.env
+    networks:
+      - trandenden-net
+    volumes:
+      - ./server/game-service/db/:/app/db/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    restart: always
+    env_file:
+      - ./server/.env
+    networks:
+      - trandenden-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    container_name: nginx-gateway
+    build:
+      context: .
+      dockerfile: client/nginx/Dockerfile
+    image: nginx-gateway
+    ports:
+      - "8080:80"
+      - "9090:443"
+    depends_on:
+      - auth
+      - profile
+      - friends
+      - notifications
+      - chat
+      - redis
+      - rabbitmq
+      - game
+      - dashboard
+    networks:
+      - trandenden-net
+    restart: always
+
+networks:
+  trandenden-net:
+    name: trandenden-net
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local

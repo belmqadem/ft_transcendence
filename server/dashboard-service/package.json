@@ -1,0 +1,26 @@
+{
+  "name": "stats-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@fastify/websocket": "^11.2.0",
+    "amqplib": "^0.10.8",
+    "cookie": "^1.0.2",
+    "dotenv": "^17.2.0",
+    "fastify": "^5.4.0",
+    "fastify-plugin": "^5.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "redis": "^5.6.0",
+    "ws": "^8.18.3",
+    "nodemon": "^3.1.10"
+  }
+}
